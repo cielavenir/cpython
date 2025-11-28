@@ -976,27 +976,12 @@ _PyObjectArray_Free(PyObject **array, PyObject **scratch)
 #include "generated_cases.c.h"
 #endif
 
-#if (defined(__GNUC__) && __GNUC__ >= 10 && !defined(__clang__)) && defined(__x86_64__)
-/*
- * gh-129987: The SLP autovectorizer can cause poor code generation for
- * opcode dispatch in some GCC versions (observed in GCCs 12 through 15,
- * probably caused by https://gcc.gnu.org/bugzilla/show_bug.cgi?id=115777),
- * negating any benefit we get from vectorization elsewhere in the
- * interpreter loop. Disabling it significantly affected older GCC versions
- * (prior to GCC 9, 40% performance drop), so we have to selectively disable
- * it.
- */
-#define DONT_SLP_VECTORIZE __attribute__((optimize ("no-tree-slp-vectorize")))
-#else
-#define DONT_SLP_VECTORIZE
-#endif
-
 typedef struct {
     _PyInterpreterFrame frame;
     _PyStackRef stack[1];
 } _PyEntryFrame;
 
-PyObject* _Py_HOT_FUNCTION DONT_SLP_VECTORIZE
+PyObject* _Py_HOT_FUNCTION
 _PyEval_EvalFrameDefault(PyThreadState *tstate, _PyInterpreterFrame *frame, int throwflag)
 {
     _Py_EnsureTstateNotNULL(tstate);
